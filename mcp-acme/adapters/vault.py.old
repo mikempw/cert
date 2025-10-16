@@ -1,0 +1,30 @@
+import requests, json
+
+class Vault:
+    def __init__(self, addr: str, token: str):
+        self.addr = addr.rstrip("/")
+        self.token = token
+
+    def _hdr(self):
+        return {"X-Vault-Token": self.token}
+
+    def read(self, path: str):
+        # supports KV v2 at path like secret/data/...
+        url = f"{self.addr}/v1/{path}"
+        r = requests.get(url, headers=self._hdr(), timeout=10)
+        r.raise_for_status()
+        data = r.json()
+        # KV v2 returns {"data":{"data":{...}}}
+        if "data" in data and "data" in data["data"]:
+            return data["data"]["data"]
+        if "data" in data:
+            return data["data"]
+        return data
+
+    def write(self, path: str, obj: dict):
+        url = f"{self.addr}/v1/{path}"
+        # KV v2 expects {"data":{...}}
+        body = {"data": obj}
+        r = requests.post(url, headers=self._hdr(), json=body, timeout=10)
+        r.raise_for_status()
+        return True

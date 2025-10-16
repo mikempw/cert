@@ -1,0 +1,109 @@
+import React, { useEffect, useMemo, useState } from 'react'
+import { api } from './api.js'
+import StepDomains from './components/StepDomains.jsx'
+import StepProvider from './components/StepProvider.jsx'
+import StepBigIP from './components/StepBigIP.jsx'
+import StepVault from './components/StepVault.jsx'
+import Review from './components/Review.jsx'
+
+const STEP_ORDER = ['domains','provider','contact_emails','key_type','challenge_type','bigip_host','bigip_partition','clientssl_profile','virtual_server','key_secret_path']
+
+export default function App() {
+  const [status, setStatus] = useState('checking')
+  const [err, setErr] = useState('')
+  const [sid, setSid] = useState(null)
+  const [slots, setSlots] = useState({})
+  const [nextQ, setNextQ] = useState(null)
+  const [replace, setReplace] = useState(false)
+  const [log, setLog] = useState([])
+
+  useEffect(() => {
+    api.ready().then(()=>setStatus('ok')).catch(e=>{ setErr(e.message); setStatus('err') })
+  }, [])
+
+  async function startIssue() {
+    setErr('')
+    try {
+      const r = await api.start('issue', { domains: slots.domains || [] })
+      setSid(r.session_id); setNextQ(r.next_question); setSlots(r.slots)
+      push(`Started session: ${r.session_id}`)
+    } catch(e) { setErr(e.message) }
+  }
+
+  async function answer(qid, value) {
+    setErr('')
+    try {
+      const r = await api.answer(sid, qid, value)
+      setSlots(r.slots); setNextQ(r.next_question || null)
+      if (qid === 'virtual_server' && r.virtual_server_check) {
+        const v = r.virtual_server_check
+        if (!v.exists) push(`VS not found: ${slots.virtual_server || value}`)
+        else if (v.clientssl_profiles?.length) push(`VS has client-ssl: ${v.clientssl_profiles.join(', ')} (toggle "replace" if desired)`)
+      }
+    } catch(e) { setErr(e.message) }
+  }
+
+  async function commit() {
+    setErr('')
+    try {
+      push('Committing…')
+      const r = await api.commit(sid, replace)
+      push('Issued & Deployed ✔')
+      push(`cert_id: ${r.cert.cert_id || r.deploy?.cert_id}`)
+      push(`profile: ${r.deploy?.profile || '(no deploy)'}`)
+      alert('Done! Check the log and your BIG-IP.')
+    } catch(e) { setErr(e.message) }
+  }
+
+  function push(m) { setLog(x=>[...x, `[${new Date().toLocaleTimeString()}] ${m}`]) }
+
+  const stepIndex = useMemo(()=>{
+    if (!nextQ) return STEP_ORDER.length
+    const idx = STEP_ORDER.indexOf(nextQ)
+    return idx >=0 ? idx : 0
+  }, [nextQ])
+
+  const canStart = status==='ok' && !sid
+  const canCommit = sid && !nextQ
+
+  return (
+    <div className="container">
+      <h1>ACME Wizard</h1>
+      <p className="muted">Issue & deploy TLS certs to BIG-IP (HTTP-01)</p>
+
+      <div className="row">
+        <button onClick={startIssue} disabled={!canStart}>Start new issue</button>
+        <label className="row"><input type="checkbox" checked={replace} onChange={e=>setReplace(e.target.checked)} /> Replace client-ssl on VS</label>
+      </div>
+
+      {err && <p className="err mono">{err}</p>}
+      <hr className="hr" />
+
+      {/* Steps */}
+      <div className="grid">
+        <StepDomains value={slots.domains} onNext={(v)=>answer('domains', v)} disabled={!sid && !canStart} />
+        <StepProvider value={{provider: slots.provider, email: slots.contact_emails?.[0] || '', keyType: slots.key_type || 'EC256', challenge: slots.challenge_type || 'HTTP-01'}} onNext={async (v)=>{ await answer('provider', v.provider); await answer('contact_emails',[v.email]); await answer('key_type', v.keyType); await answer('challenge_type', v.challenge) }} disabled={!sid}/>
+        <StepBigIP value={{ host: slots.bigip_host || '', partition: slots.bigip_partition || '/Common', profile: (slots.clientssl_profile ?? ''), vs: slots.virtual_server || '' }} onNext={async (v)=>{ await answer('bigip_host', v.host); await answer('bigip_partition', v.partition); await answer('clientssl_profile', v.profile); if (v.vs) await answer('virtual_server', v.vs) }} disabled={!sid}/>
+        <StepVault value={slots.key_secret_path || ''} onNext={(v)=>answer('key_secret_path', v)} disabled={!sid}/>
+      </div>
+
+      <div className="footer">
+        <div className="small">Step {Math.min(stepIndex+1, STEP_ORDER.length)} / {STEP_ORDER.length}</div>
+        <button onClick={commit} disabled={!canCommit}>Issue & Deploy</button>
+      </div>
+
+      <div className="card" style={{marginTop:16}}>
+        <div className="row" style={{justifyContent:'space-between'}}>
+          <strong>Review</strong>
+          <span className="pill">{sid ? 'session: '+sid : 'no session'}</span>
+        </div>
+        <Review slots={slots}/>
+      </div>
+
+      <div className="card" style={{marginTop:16}}>
+        <strong>Log</strong>
+        <pre className="mono small">{log.join('\n') || '—'}</pre>
+      </div>
+    </div>
+  )
+}

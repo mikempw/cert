@@ -1,0 +1,38 @@
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+.env
+.env.*
+
+# Node / UI builds
+node_modules/
+dist/
+build/
+
+# Docker & Compose artifacts
+*.log
+*.pid
+*.sock
+
+# Credentials / Keys (avoid committing secrets)
+*.pem
+*.key
+*.pfx
+*.crt
+id_*
+*.kubeconfig
+.kube/
+.secrets/
+secret*/**
+
+# Local tooling
+.idea/
+.vscode/

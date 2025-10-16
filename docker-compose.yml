@@ -1,0 +1,56 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_PASSWORD: acme
+      POSTGRES_USER: acme
+      POSTGRES_DB: acme
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports: ["5432:5432"]
+
+  mcp-acme:
+    build: ./mcp-acme
+    depends_on: [postgres]
+    environment:
+      # Postgres
+      DB_DSN: postgresql://acme:acme@postgres:5432/acme
+      # Vault/OpenBao
+      VAULT_TOKEN: root
+      # BIG-IP (optional; can use vault handles per-target instead)
+      BIGIP_HOST: "192.168.3.55"
+      BIGIP_USER: "admin"
+      BIGIP_PASS: "11F5Networks11"
+      # ACME policy
+      ALLOW_KEY_EXPORT: "false"
+      DEFAULT_KEY_TYPE: "EC256"
+      # Optional: AST feed URL/token (stubbed)
+      AST_FEED_URL: ""
+      AST_TOKEN: ""
+      ACME_HOME: /opt/acme
+      VAULT_ADDR: http://192.168.3.55:8200
+    volumes:
+      - acmework:/work
+      - acmehome:/opt/acme
+    ports: ["7000:7000"] # simple HTTP for MCP JSON-RPC bridge
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:7000/mcp/tools"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+
+  vault:
+    image: hashicorp/vault:1.16
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: root
+      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+    cap_add: ["IPC_LOCK"]
+    ports: ["8200:8200"]
+
+volumes:
+  pgdata: {}
+  acmework: {}
+  acmehome: {}
