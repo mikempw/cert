@@ -76,7 +76,8 @@ def get_router(dsn: str, orc: Orchestrator, bigip_user: str, bigip_pass: str):
             required = ["mode","domains","provider","contact_emails","key_type","challenge_type"] + core_http01
         # EAB is optional unless the provider requires it; we detect that later and return 400 with guidance
         for q in required:
-            if q == "clientssl_profile" and slots.get(q, "") == "":
+            # Allow empty strings for both clientssl_profile and virtual_server
+            if q in ["clientssl_profile", "virtual_server"] and slots.get(q, "") == "":
                 continue
             if not slots.get(q):
                 return q

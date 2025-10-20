@@ -1,0 +1,350 @@
+/* Wizard Step Container */
+.wizard-step {
+  background: white;
+  border-radius: 12px;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+/* Wizard Step Header */
+.wizard-step-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.wizard-step-icon {
+  width: 48px;
+  height: 48px;
+  background: white;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.wizard-step-header-text {
+  flex: 1;
+}
+
+.wizard-step-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a202c;
+}
+
+.wizard-step-subtitle {
+  margin: 4px 0 0 0;
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+/* Wizard Step Content */
+.wizard-step-content {
+  padding: 24px;
+}
+
+/* Form Field */
+.form-field {
+  margin-bottom: 20px;
+}
+
+.form-field.has-error .form-input-wrapper input,
+.form-field.has-error .form-input-wrapper select,
+.form-field.has-error .form-input-wrapper textarea {
+  border-color: #ef4444;
+}
+
+.form-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.required-mark {
+  color: #ef4444;
+  margin-left: 4px;
+}
+
+.form-input-wrapper {
+  position: relative;
+}
+
+.form-help-text {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
+.form-error-text {
+  font-size: 12px;
+  color: #dc2626;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.error-icon {
+  font-size: 14px;
+}
+
+/* Wizard Actions */
+.wizard-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  background: #f9fafb;
+  border-top: 1px solid #e5e7eb;
+  margin: 24px -24px -24px -24px;
+}
+
+.actions-left,
+.actions-right {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.btn-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* Info Card */
+.info-card {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid;
+}
+
+.info-card-info {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.info-card-success {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.info-card-warning {
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+
+.info-card-error {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.info-card-icon {
+  font-size: 20px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.info-card-content {
+  flex: 1;
+}
+
+.info-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.info-card-info .info-card-title { color: #1e40af; }
+.info-card-success .info-card-title { color: #14532d; }
+.info-card-warning .info-card-title { color: #713f12; }
+.info-card-error .info-card-title { color: #7f1d1d; }
+
+.info-card-body {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.info-card-info .info-card-body { color: #3730a3; }
+.info-card-success .info-card-body { color: #166534; }
+.info-card-warning .info-card-body { color: #854d0e; }
+.info-card-error .info-card-body { color: #991b1b; }
+
+/* Tag Input */
+.tag-input {
+  width: 100%;
+}
+
+.tag-input-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px;
+  min-height: 42px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+  transition: all 0.2s;
+}
+
+.tag-input-container:focus-within {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+  color: #3730a3;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.tag-remove {
+  background: none;
+  border: none;
+  color: #6366f1;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.tag-remove:hover {
+  background: rgba(99, 102, 241, 0.2);
+  color: #4f46e5;
+}
+
+.tag-input-field {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  min-width: 120px;
+  padding: 0;
+}
+
+/* Status Indicator */
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-indicator-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: pulse-dot 2s infinite;
+}
+
+.status-success {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-success .status-indicator-dot {
+  background: #10b981;
+}
+
+.status-error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-error .status-indicator-dot {
+  background: #ef4444;
+}
+
+.status-warning {
+  background: #fed7aa;
+  color: #92400e;
+}
+
+.status-warning .status-indicator-dot {
+  background: #f59e0b;
+}
+
+.status-pending {
+  background: #e5e7eb;
+  color: #4b5563;
+}
+
+.status-pending .status-indicator-dot {
+  background: #6b7280;
+  animation: pulse-dot 1s infinite;
+}
+
+.status-info {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.status-info .status-indicator-dot {
+  background: #3b82f6;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .wizard-step-header {
+    padding: 16px;
+  }
+
+  .wizard-step-content {
+    padding: 16px;
+  }
+
+  .wizard-actions {
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .actions-left,
+  .actions-right {
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -1,128 +1,217 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { api } from './api.js'
-import StepDomains from './components/StepDomains.jsx'
-import StepProvider from './components/StepProvider.jsx'
-import StepBigIP from './components/StepBigIP.jsx'
-import StepVault from './components/StepVault.jsx'
-import Review from './components/Review.jsx'
+import CertificateWizard from './components/wizard/CertificateWizard'
+import './styles/App.css'
 
 export default function App() {
   const [status, setStatus] = useState('checking')
   const [err, setErr] = useState('')
-  const [sid, setSid] = useState(null)
-  const [slots, setSlots] = useState({})
-  const [nextQ, setNextQ] = useState(null)
-  const [replace, setReplace] = useState(false)
-  const [log, setLog] = useState([])
-  const [mode, setMode] = useState('issue') // 'issue' | 'renew'
-
-  // Step order differs for renew (no provider/email/key_type)
-  const STEP_ORDER = mode === 'renew'
-    ? ['domains','bigip_host','bigip_partition','clientssl_profile','virtual_server','key_secret_path']
-    : ['domains','provider','contact_emails','key_type','challenge_type','bigip_host','bigip_partition','clientssl_profile','virtual_server','key_secret_path']
+  const [activeSection, setActiveSection] = useState('issue')
+  const [mode, setMode] = useState('issue')
+  
+  // UI state
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [activeTab, setActiveTab] = useState('configuration')
 
   useEffect(() => {
-    api.ready().then(()=>setStatus('ok')).catch(e=>{ setErr(e.message); setStatus('err') })
+    api.ready()
+      .then(() => setStatus('ok'))
+      .catch(e => {
+        setErr(e.message)
+        setStatus('err')
+      })
   }, [])
 
-  async function start(modeToStart) {
-    setErr('')
-    try {
-      const r = await api.start(modeToStart, { domains: slots.domains || [] })
-      setSid(r.session_id); setNextQ(r.next_question); setSlots(r.slots); setMode(modeToStart)
-      push(`Started ${modeToStart} session: ${r.session_id}`)
-    } catch(e) { setErr(e.message) }
+  // Navigation items for sidebar
+  const navSections = [
+    {
+      title: 'Certificate Management',
+      items: [
+        { id: 'issue', label: 'Issue Certificate', icon: '📜' },
+        { id: 'renew', label: 'Renew Certificate', icon: '🔄' },
+        { id: 'inventory', label: 'Certificate Inventory', icon: '📋' }
+      ]
+    },
+    {
+      title: 'Configuration',
+      items: [
+        { id: 'providers', label: 'Providers', icon: '🔧' },
+        { id: 'vault', label: 'Vault Secrets', icon: '🗝️' },
+        { id: 'templates', label: 'Templates', icon: '📝' }
+      ]
+    },
+    {
+      title: 'Infrastructure',
+      items: [
+        { id: 'bigip', label: 'BIG-IP Devices', icon: '🖥️' },
+        { id: 'monitoring', label: 'Monitoring', icon: '📊' }
+      ]
+    }
+  ]
+
+  const handleNavClick = (itemId) => {
+    setActiveSection(itemId)
+    if (itemId === 'issue' || itemId === 'renew') {
+      setMode(itemId)
+    }
   }
 
-  async function answer(qid, value) {
-    if (!sid) return
-    setErr('')
-    try {
-      const r = await api.answer(sid, qid, value)
-      setSlots(r.slots); setNextQ(r.next_question || null)
-      if (qid === 'virtual_server' && r.virtual_server_check) {
-        const v = r.virtual_server_check
-        if (!v.exists) push(`VS not found: ${value}`)
-        else if (v.clientssl_profiles?.length) push(`VS has client-ssl: ${v.clientssl_profiles.join(', ')} (toggle "replace" if desired)`)
-      }
-    } catch(e) { setErr(e.message) }
+  const getBreadcrumb = () => {
+    const sectionMap = {
+      'issue': 'Certificate Management > Issue Certificate',
+      'renew': 'Certificate Management > Renew Certificate',
+      'inventory': 'Certificate Management > Certificate Inventory',
+      'providers': 'Configuration > Providers',
+      'vault': 'Configuration > Vault Secrets',
+      'templates': 'Configuration > Templates',
+      'bigip': 'Infrastructure > BIG-IP Devices',
+      'monitoring': 'Infrastructure > Monitoring'
+    }
+    return sectionMap[activeSection] || 'Dashboard'
   }
 
-  async function commit() {
-    if (!sid) return
-    setErr('')
-    try {
-      push('Committing…')
-      const r = await api.commit(sid, replace)
-      push('✔ Completed')
-      push(`cert_id: ${(r.cert && r.cert.cert_id) || r.deploy?.cert_id || 'n/a'}`)
-      push(`profile: ${r.deploy?.profile || '(no deploy)'}`)
-      alert('Done! Check BIG-IP.')
-    } catch(e) { setErr(e.message); push('✖ Commit failed') }
+  const getPageTitle = () => {
+    const titleMap = {
+      'issue': 'Issue New Certificate',
+      'renew': 'Renew Certificate',
+      'inventory': 'Certificate Inventory',
+      'providers': 'ACME Providers',
+      'vault': 'Vault Secret Management',
+      'templates': 'Certificate Templates',
+      'bigip': 'BIG-IP Device Management',
+      'monitoring': 'System Monitoring'
+    }
+    return titleMap[activeSection] || 'Dashboard'
   }
 
-  function push(m) { setLog(x=>[...x, `[${new Date().toLocaleTimeString()}] ${m}`]) }
+  const getPageSubtitle = () => {
+    const subtitleMap = {
+      'issue': 'Request and deploy TLS certificates using ACME protocol',
+      'renew': 'Renew existing certificates and redeploy to BIG-IP',
+      'inventory': 'View and manage all certificates',
+      'providers': 'Configure ACME providers and authentication',
+      'vault': 'Manage secrets and credentials in Vault',
+      'templates': 'Create reusable certificate configurations',
+      'bigip': 'Manage BIG-IP devices and deployments',
+      'monitoring': 'Monitor certificate status and expiration'
+    }
+    return subtitleMap[activeSection] || ''
+  }
 
-  const stepIndex = useMemo(()=>{
-    if (!nextQ) return STEP_ORDER.length
-    const idx = STEP_ORDER.indexOf(nextQ)
-    return idx >=0 ? idx : 0
-  }, [nextQ, STEP_ORDER])
-
-  const canStart = status==='ok' && !sid
-  const canCommit = !!sid && !nextQ
+  // Dynamic content rendering based on active section
+  const renderContent = () => {
+    // For issue and renew sections, render the Certificate Wizard
+    if (activeSection === 'issue' || activeSection === 'renew') {
+      return <CertificateWizard mode={activeSection} />
+    }
+    
+    // For other sections, show placeholder
+    return (
+      <div className="card">
+        <div className="card-title">{getPageTitle()}</div>
+        <p>This section is under development.</p>
+      </div>
+    )
+  }
 
   return (
-    <div className="container">
-      <h1>ACME Wizard</h1>
-      <p className="muted">Issue or Renew TLS certs (HTTP-01) and deploy to BIG-IP</p>
-
-      <div className="row" style={{gap:8}}>
-        <div className="row" style={{gap:8, alignItems:'center'}}>
-          <label><input type="radio" name="mode" checked={mode==='issue'} onChange={()=>setMode('issue')} /> Issue</label>
-          <label><input type="radio" name="mode" checked={mode==='renew'} onChange={()=>setMode('renew')} /> Renew</label>
+    <div className="app">
+      {/* Top Navigation */}
+      <div className="top-nav">
+        <div className="logo">
+          <div className="logo-icon">A</div>
+          <span>ACME Certificate Manager</span>
         </div>
-        <button onClick={()=>start(mode)} disabled={!canStart}>Start new {mode}</button>
-        <label className="row"><input type="checkbox" checked={replace} onChange={e=>setReplace(e.target.checked)} /> Replace client-ssl on VS</label>
-      </div>
-
-      {err && <p className="err mono">{err}</p>}
-      <hr className="hr" />
-
-      {/* Steps */}
-      <div className="grid">
-        <StepDomains value={slots.domains} onNext={(v)=>answer('domains', v)} disabled={!sid}/>
-        {mode === 'issue' && (
-          <StepProvider
-            value={{provider: slots.provider, email: slots.contact_emails?.[0] || '', keyType: slots.key_type || 'EC256', challenge: slots.challenge_type || 'HTTP-01'}}
-            onNext={async (v)=>{ await answer('provider', v.provider); await answer('contact_emails',[v.email]); await answer('key_type', v.keyType); await answer('challenge_type', v.challenge) }}
-            disabled={!sid}
-          />
-        )}
-        <StepBigIP
-          value={{ host: slots.bigip_host || '', partition: slots.bigip_partition || '/Common', profile: (slots.clientssl_profile ?? ''), vs: slots.virtual_server || '' }}
-          onNext={async (v)=>{ await answer('bigip_host', v.host); await answer('bigip_partition', v.partition); await answer('clientssl_profile', v.profile); if (v.vs) await answer('virtual_server', v.vs) }}
-          disabled={!sid}
-        />
-        <StepVault value={slots.key_secret_path || ''} onNext={(v)=>answer('key_secret_path', v)} disabled={!sid}/>
-      </div>
-
-      <div className="footer">
-        <div className="small">Step {Math.min(stepIndex+1, STEP_ORDER.length)} / {STEP_ORDER.length} • mode: {mode}</div>
-        <button onClick={commit} disabled={!canCommit}>Commit {mode === 'renew' ? 'Renew & Deploy' : 'Issue & Deploy'}</button>
-      </div>
-
-      <div className="card" style={{marginTop:16}}>
-        <div className="row" style={{justifyContent:'space-between'}}>
-          <strong>Review</strong>
-          <span className="pill">{sid ? 'session: '+sid : 'no session'}</span>
+        <div className="user-menu">
+          <button className="support-btn">Support</button>
+          <div className="user-avatar">
+            <span>U</span>
+          </div>
         </div>
-        <Review slots={{...slots, mode}}/>
       </div>
 
-      <div className="card" style={{marginTop:16}}>
-        <strong>Log</strong>
-        <pre className="mono small">{log.join('\n') || '—'}</pre>
+      <div className="layout">
+        {/* Sidebar */}
+        <div className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
+          {navSections.map((section, idx) => (
+            <div key={idx} className="nav-section">
+              <div className="nav-title">{section.title}</div>
+              {section.items.map(item => (
+                <div
+                  key={item.id}
+                  className={`nav-item ${activeSection === item.id ? 'active' : ''}`}
+                  onClick={() => handleNavClick(item.id)}
+                >
+                  <span className="nav-icon">{item.icon}</span>
+                  <span className="nav-label">{item.label}</span>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+
+        {/* Main Content */}
+        <div className="main-content">
+          {/* Breadcrumb */}
+          <div className="breadcrumb">
+            <span>Home</span>
+            <span className="separator">›</span>
+            <span className="current">{getBreadcrumb()}</span>
+          </div>
+
+          {/* Page Header */}
+          <div className="page-header">
+            <div className="header-content">
+              <div className="page-title">{getPageTitle()}</div>
+              <div className="page-subtitle">{getPageSubtitle()}</div>
+            </div>
+
+            {/* Tabs (only show for certain sections) */}
+            {(activeSection === 'issue' || activeSection === 'renew') && (
+              <div className="tabs">
+                <div 
+                  className={`tab ${activeTab === 'configuration' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('configuration')}
+                >
+                  Configuration
+                </div>
+                <div 
+                  className={`tab ${activeTab === 'review' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('review')}
+                >
+                  Review
+                </div>
+                <div 
+                  className={`tab ${activeTab === 'history' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('history')}
+                >
+                  History
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Error Display */}
+          {err && (
+            <div className="alert alert-error">
+              <span className="alert-icon">⚠️</span>
+              <span>{err}</span>
+            </div>
+          )}
+
+          {/* Status Display */}
+          {status === 'checking' && (
+            <div className="card">
+              <div className="loading">
+                <div className="spinner"></div>
+                <span>Checking system status...</span>
+              </div>
+            </div>
+          )}
+
+          {/* Main Content Area - This is where the wizard appears */}
+          {status === 'ok' && renderContent()}
+        </div>
       </div>
     </div>
   )

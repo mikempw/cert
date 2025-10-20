@@ -1,0 +1,538 @@
+/* BIG-IP Step Container */
+.bigip-step {
+  max-width: 900px;
+}
+
+/* Section Headers */
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 20px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e5e7eb;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Connection Section */
+.connection-section {
+  margin-bottom: 32px;
+}
+
+.connection-grid {
+  display: grid;
+  gap: 20px;
+}
+
+.input-with-status {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.input-with-status .input {
+  flex: 1;
+}
+
+.input-with-status .status-indicator {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Connection Info Box */
+.connection-info {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 1px solid #86efac;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 12px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.info-label {
+  font-size: 12px;
+  color: #4b5563;
+  font-weight: 500;
+}
+
+.info-value {
+  font-size: 13px;
+  color: #111827;
+  font-weight: 600;
+}
+
+/* Profile Section */
+.profile-section {
+  margin-bottom: 32px;
+}
+
+.profile-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+/* Option Cards */
+.option-card {
+  display: block;
+  position: relative;
+  padding: 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: white;
+}
+
+.option-card:hover {
+  border-color: #93c5fd;
+  background: #f0f9ff;
+}
+
+.option-card input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+}
+
+.option-card input[type="radio"]:checked + .option-content {
+  opacity: 1;
+}
+
+.option-card input[type="radio"]:checked ~ .option-content::before {
+  content: '✓';
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 24px;
+  height: 24px;
+  background: #2563eb;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.option-card input[type="radio"]:checked ~ .option-content {
+  border-color: #2563eb;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+}
+
+.option-card input[type="radio"]:checked + .option-content {
+  position: relative;
+}
+
+.option-card input[type="radio"]:checked ~ * {
+  position: relative;
+}
+
+.option-card:has(input[type="radio"]:checked) {
+  border-color: #2563eb;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.option-content {
+  position: relative;
+}
+
+.option-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.option-icon {
+  font-size: 20px;
+}
+
+.option-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.option-description {
+  font-size: 12px;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.option-preview {
+  margin-top: 12px;
+  padding: 8px;
+  background: white;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #4b5563;
+}
+
+.option-preview code {
+  background: #1f2937;
+  color: #60a5fa;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: 'Monaco', 'Courier New', monospace;
+  font-size: 11px;
+}
+
+/* Virtual Server Section */
+.vs-section {
+  margin-bottom: 32px;
+}
+
+.input-with-action {
+  display: flex;
+  gap: 8px;
+}
+
+.input-with-action .input {
+  flex: 1;
+}
+
+.input-with-action .btn {
+  white-space: nowrap;
+}
+
+/* VS Details Box */
+.vs-details {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 8px;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.vs-details.found {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 1px solid #86efac;
+}
+
+.vs-details.not-found {
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  border: 1px solid #fca5a5;
+}
+
+.vs-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.vs-status.success {
+  color: #059669;
+}
+
+.vs-status.error {
+  color: #dc2626;
+}
+
+.status-icon {
+  font-size: 18px;
+}
+
+.vs-info {
+  display: grid;
+  gap: 12px;
+}
+
+.vs-info-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.vs-info-item .label {
+  font-size: 12px;
+  color: #4b5563;
+  font-weight: 500;
+  min-width: 100px;
+}
+
+.vs-info-item .value {
+  font-size: 13px;
+  color: #111827;
+  font-weight: 500;
+}
+
+.vs-info-item .value.status-enabled {
+  color: #059669;
+}
+
+.vs-info-item .value.status-disabled {
+  color: #dc2626;
+}
+
+.profile-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.profile-tag {
+  display: inline-block;
+  padding: 3px 8px;
+  background: #e0e7ff;
+  color: #3730a3;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Requirements List */
+.requirements-list {
+  margin: 0;
+  padding-left: 20px;
+  list-style: none;
+}
+
+.requirements-list li {
+  position: relative;
+  padding-left: 20px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #4b5563;
+}
+
+.requirements-list li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #2563eb;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+/* Checkbox Label */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #374151;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.checkbox-label:hover {
+  color: #1f2937;
+}
+
+/* Advanced Section Styles (reuse from ProviderStep) */
+.advanced-section {
+  margin-top: 32px;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 20px;
+}
+
+.advanced-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  padding: 8px 0;
+  color: #4b5563;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.advanced-toggle:hover {
+  color: #2563eb;
+}
+
+.advanced-toggle span {
+  font-size: 10px;
+  transition: transform 0.2s;
+}
+
+.advanced-content {
+  margin-top: 20px;
+  padding: 20px;
+  background: #f9fafb;
+  border-radius: 8px;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .profile-options {
+    grid-template-columns: 1fr;
+  }
+  
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .input-with-action {
+    flex-direction: column;
+  }
+  
+  .input-with-action .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .option-card {
+    padding: 12px;
+  }
+  
+  .vs-info-item {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .vs-info-item .label {
+    min-width: auto;
+  }
+}
+
+/* Loading States */
+.bigip-step input:disabled,
+.bigip-step select:disabled,
+.bigip-step button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Connection Status Animation */
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.status-indicator[data-status="pending"] {
+  animation: pulse 1.5s infinite;
+}
+
+/* Dark Mode Support (optional) */
+@media (prefers-color-scheme: dark) {
+  .bigip-step {
+    color: #e5e7eb;
+  }
+  
+  .section-title {
+    color: #e5e7eb;
+    border-bottom-color: #374151;
+  }
+  
+  .option-card {
+    background: #1f2937;
+    border-color: #374151;
+  }
+  
+  .option-card:hover {
+    background: #374151;
+    border-color: #60a5fa;
+  }
+  
+  .option-card:has(input[type="radio"]:checked) {
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+    border-color: #60a5fa;
+  }
+  
+  .connection-info {
+    background: linear-gradient(135deg, #064e3b 0%, #047857 100%);
+    border-color: #10b981;
+  }
+  
+  .vs-details.found {
+    background: linear-gradient(135deg, #064e3b 0%, #047857 100%);
+    border-color: #10b981;
+  }
+  
+  .vs-details.not-found {
+    background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%);
+    border-color: #ef4444;
+  }
+  
+  .info-label,
+  .vs-info-item .label {
+    color: #9ca3af;
+  }
+  
+  .info-value,
+  .vs-info-item .value {
+    color: #f3f4f6;
+  }
+  
+  .option-preview {
+    background: #374151;
+  }
+  
+  .advanced-content {
+    background: #1f2937;
+  }
+}
+
+/* Focus States for Accessibility */
+.option-card:focus-within {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+input:focus,
+select:focus,
+button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
