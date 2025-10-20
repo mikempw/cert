@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { api } from './api.js'
 import CertificateWizard from './components/wizard/CertificateWizard'
 import './styles/App.css'
+import CertificateInventory from './components/inventory/CertificateInventory'
 
 export default function App() {
   const [status, setStatus] = useState('checking')
@@ -99,20 +100,25 @@ export default function App() {
   }
 
   // Dynamic content rendering based on active section
-  const renderContent = () => {
-    // For issue and renew sections, render the Certificate Wizard
-    if (activeSection === 'issue' || activeSection === 'renew') {
-      return <CertificateWizard mode={activeSection} />
-    }
-    
-    // For other sections, show placeholder
-    return (
-      <div className="card">
-        <div className="card-title">{getPageTitle()}</div>
-        <p>This section is under development.</p>
-      </div>
-    )
+const renderContent = () => {
+  // For issue and renew sections, render the Certificate Wizard
+  if (activeSection === 'issue' || activeSection === 'renew') {
+    return <CertificateWizard mode={activeSection} />
   }
+  
+  // For inventory section, render the Certificate Inventory
+  if (activeSection === 'inventory') {
+    return <CertificateInventory />
+  }
+  
+  // For other sections, show placeholder
+  return (
+    <div className="card">
+      <div className="card-title">{getPageTitle()}</div>
+      <p>This section is under development.</p>
+    </div>
+  )
+}
 
   return (
     <div className="app">
