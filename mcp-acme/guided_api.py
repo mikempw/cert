@@ -13,7 +13,7 @@ def get_router(dsn: str, orc: Orchestrator, bigip_user: str, bigip_pass: str):
     """
     Guided/template API router for Issue & Renew.
     - Honors provider/directory_url and eab_secret for both issue and renew.
-    - Friendly 429 on ACME rate limit with 'retry_after' and 'directory_url'.
+    - Friendly 429 on ACME rate limit
     - Friendly 400 when EAB is required (directory_url included).
     """
     router = APIRouter()
