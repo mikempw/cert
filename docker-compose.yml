@@ -19,9 +19,9 @@ services:
       # Vault/OpenBao
       VAULT_TOKEN: root
       # BIG-IP (optional; can use vault handles per-target instead)
-      BIGIP_HOST: "192.168.3.55"
+      BIGIP_HOST: ""
       BIGIP_USER: "admin"
-      BIGIP_PASS: "11F5Networks11"
+      BIGIP_PASS: ""
       # ACME policy
       ALLOW_KEY_EXPORT: "false"
       DEFAULT_KEY_TYPE: "EC256"
